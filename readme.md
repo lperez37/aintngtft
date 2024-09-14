@@ -1,3 +1,5 @@
+![Aintngtft in action](example.png)
+
 ## Overview
 
 This project is a web application that summarizes YouTube videos and extracts key insights. It uses AI to analyze video transcripts, providing users with concise summaries, main points and actionable takeaways. The app streamlines the process of extracting valuable information from lengthy video content, saving users time and enhancing their learning experience.
