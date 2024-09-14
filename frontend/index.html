@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ain't nobody got time for that (aintngtft.com)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #1a4d2e);
+            background-size: 400% 400%;
+            animation: gradientBG 22s ease infinite;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        @media (max-width: 767px) {
+            body {
+                background-size: 100% 100%;
+                animation: gradientBG 10s ease infinite;
+            }
+        }
+
+        .gradient-text {
+            background: linear-gradient(45deg, #e0e0e0, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientBG 15s ease infinite;
+        }
+        .gradient-button {
+            background: linear-gradient(45deg, #4a00e0, #8e2de2);
+            transition: all 0.3s ease;
+        }
+        .gradient-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .terminal {
+            background-color: rgba(30, 41, 59, 0.9);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            font-family: 'Roboto Mono', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid #4a5568;
+            position: relative;
+        }
+        .terminal h1 {
+            color: #60a5fa;
+            border-bottom: 1px solid #60a5fa;
+            padding-bottom: 0.5rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .terminal h2 {
+            color: #c084fc;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .terminal ul {
+            list-style-type: none;
+            padding-left: 1rem;
+        }
+        .terminal ul li::before {
+            content: "• ";
+            color: #34d399;
+        }
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .copy-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        .loading-text {
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+        .highlight-button {
+            background: linear-gradient(45deg, #f5c2e7, #cba6f7, #89dceb);
+            color: #1a1a2e;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .highlight-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <textarea id="hiddenCopyArea" style="position: absolute; left: -9999px;" aria-hidden="true"></textarea>
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-bold mb-2 text-center gradient-text mt-8">Ain't nobody got time for that</h1>
+        <p class="text-xl text-center mb-8 text-gray-300">A quick way to learn from Youtube without having to watch the whole damn thing</p>
+        <input type="text" id="videoUrl" placeholder="Enter YouTube URL" class="w-full p-4 border rounded-lg mb-6 bg-slate-700 text-white border-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500" style="border: 1px solid #4a5568;">
+        <div id="actionButtons" class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+            <button onclick="analyze('summarize')" class="flex-1 gradient-button text-white p-4 rounded-lg text-lg font-semibold shadow-lg">
+                <i class="fas fa-compress-alt mr-2"></i>Summarize
+            </button>
+            <button onclick="analyze('extract-wisdom')" class="flex-1 gradient-button text-white p-4 rounded-lg text-lg font-semibold shadow-lg">
+                <i class="fas fa-lightbulb mr-2"></i>Extract Wisdom
+            </button>
+        </div>
+        <div class="relative">
+            <button id="testUrlButton" onclick="addTestUrl()" class="w-full mb-4 p-2 text-sm text-gray-300 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors duration-300">
+                Don't know what to do? Try with a test video URL
+            </button>
+        </div>
+        <div id="loading" class="mt-4 hidden text-center">
+            <div id="loadingSteps" class="loading-text text-xl font-bold text-purple-300"></div>
+        </div>
+        <div id="error" class="mt-4 hidden text-center text-red-500"></div>
+        <button id="doItAgainTop" onclick="resetAnalyzer()" class="mt-4 gradient-button text-white p-3 rounded-lg text-lg font-semibold hidden w-full">
+            <i class="fas fa-redo mr-2"></i>Start again
+        </button>
+        <div id="result" class="terminal mt-6" style="display: none;">
+            <button class="copy-button" onclick="copyToClipboard()">
+                <i class="fas fa-copy mr-1"></i> Copy
+            </button>
+            <span id="prompt"></span>
+        </div>
+        <button id="extractWisdomButton" onclick="analyze('extract-wisdom')" class="mt-4 highlight-button p-3 rounded-lg text-lg font-semibold hidden w-full">
+            Why stop there? Let's extract wisdom!
+        </button>
+        <button id="doItAgainBottom" onclick="resetAnalyzer()" class="mt-4 gradient-button text-white p-3 rounded-lg text-lg font-semibold hidden w-full">
+            <i class="fas fa-redo mr-2"></i>Start again
+        </button>
+    </div>
+
+    <script>
+        const loadingSteps = [
+            "Downloading transcripts...",
+            "Processing video content...",
+            "Analyzing language patterns...",
+            "Extracting key concepts...",
+            "Structuring information...",
+            "Generating insights...",
+            "Summarizing content...",
+            "Refining output...",
+            "Polishing results..."
+        ];
+
+        let loadingInterval;
+
+        function showLoadingSteps() {
+            let stepIndex = 0;
+            const loadingStepsElement = document.getElementById('loadingSteps');
+            loadingStepsElement.textContent = loadingSteps[stepIndex];
+
+            loadingInterval = setInterval(() => {
+                stepIndex = (stepIndex + 1) % loadingSteps.length;
+                loadingStepsElement.textContent = loadingSteps[stepIndex];
+            }, 2000);
+        }
+
+        function extractVideoId(url) {
+            const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            const match = url.match(youtubeRegex);
+            return match ? match[1] : null;
+        }
+
+        async function analyze(action) {
+            const videoUrl = document.getElementById('videoUrl').value;
+            const videoId = extractVideoId(videoUrl);
+            
+            if (!videoId) {
+                document.getElementById('error').textContent = 'Invalid YouTube URL. Please try again.';
+                document.getElementById('error').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('result').innerHTML = '<button class="copy-button" onclick="copyToClipboard()"><i class="fas fa-copy mr-1"></i> Copy</button>';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('actionButtons').classList.add('hidden');
+            document.getElementById('doItAgainTop').classList.add('hidden');
+            document.getElementById('doItAgainBottom').classList.add('hidden');
+            document.getElementById('extractWisdomButton').classList.add('hidden');
+            
+            showLoadingSteps();
+
+            try {
+                // IMPORTANT: Update this URL to point to your backend server
+                const response = await fetch(`https://yt-backend.vivacityholding.com/${action}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ video_id: videoId }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const formattedContent = formatTerminalOutput(data.result);
+                const resultElement = document.getElementById('result');
+                resultElement.innerHTML += formattedContent;
+                resultElement.style.display = 'block';
+
+                document.getElementById('doItAgainTop').classList.remove('hidden');
+
+                if (action === 'summarize') {
+                    document.getElementById('extractWisdomButton').classList.remove('hidden');
+                    document.getElementById('doItAgainBottom').classList.add('hidden');
+                } else {
+                    document.getElementById('extractWisdomButton').classList.add('hidden');
+                    document.getElementById('doItAgainBottom').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('error').textContent = `An error occurred: ${error.message}`;
+                document.getElementById('error').classList.remove('hidden');
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+                clearInterval(loadingInterval);
+            }
+        }
+
+        function resetAnalyzer() {
+            document.getElementById('videoUrl').value = '';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('doItAgainTop').classList.add('hidden');
+            document.getElementById('doItAgainBottom').classList.add('hidden');
+            document.getElementById('extractWisdomButton').classList.add('hidden');
+            document.getElementById('actionButtons').classList.remove('hidden');
+        }
+
+        function formatTerminalOutput(content) {
+            const lines = content.split('\n');
+            let formattedContent = '';
+            let inList = false;
+
+            for (const line of lines) {
+                if (line.startsWith('# ')) {
+                    formattedContent += `<h1>${line.slice(2)}</h1>`;
+                } else if (line.startsWith('## ')) {
+                    formattedContent += `<h2>${line.slice(3)}</h2>`;
+                } else if (line.startsWith('- ')) {
+                    if (!inList) {
+                        formattedContent += '<ul>';
+                        inList = true;
+                    }
+                    formattedContent += `<li>${line.slice(2)}</li>`;
+                } else {
+                    if (inList) {
+                        formattedContent += '</ul>';
+                        inList = false;
+                    }
+                    formattedContent += `<p>${line}</p>`;
+                }
+            }
+
+            if (inList) {
+                formattedContent += '</ul>';
+            }
+
+            return formattedContent;
+        }
+
+        function copyToClipboard() {
+            const resultElement = document.getElementById('result');
+            const hiddenCopyArea = document.getElementById('hiddenCopyArea');
+            
+            // Get the text content, excluding the "Copy" button text
+            const textToCopy = resultElement.innerText.replace(/Copy/, '').trim();
+            
+            // Set the value of the hidden textarea
+            hiddenCopyArea.value = textToCopy;
+            
+            // Select the text in the textarea
+            hiddenCopyArea.select();
+            
+            try {
+                // Execute the copy command
+                document.execCommand('copy');
+                
+                // Update the copy button text
+                const copyButton = document.querySelector('.copy-button');
+                copyButton.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+                setTimeout(() => {
+                    copyButton.innerHTML = '<i class="fas fa-copy mr-1"></i> Copy';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                alert('Failed to copy text. Please try again.');
+            }
+            
+            // Deselect the textarea content
+            hiddenCopyArea.blur();
+        }
+
+        const testUrls = [
+            "https://www.youtube.com/watch?v=kh8g92rn7bQ",
+            "https://www.youtube.com/watch?v=3LopI4YeC4I",
+            "https://www.youtube.com/watch?v=Nteyw40i9So",
+            "https://www.youtube.com/watch?v=P6vr9JKrFSE",
+            "https://www.youtube.com/watch?v=3TovcF1j3bE"
+        ];
+
+        function addTestUrl() {
+            const randomUrl = testUrls[Math.floor(Math.random() * testUrls.length)];
+            document.getElementById('videoUrl').value = randomUrl;
+            document.getElementById('testUrlButton').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
