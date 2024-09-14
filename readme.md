@@ -19,8 +19,14 @@ This project is a web application that summarizes YouTube videos and extracts ke
 
 2. Set up environment variables:
    Copy the `.env.example` file to `.env` and fill in the necessary variables (OpenAI and Cloudflare)
-
-3. Build and run the Docker containers:
+   
+3. Link the frontend to your own backend:
+   Edit the `index.html` file in the `frontend` directory and edit the line 208 to point to your own backend 
+   ```
+   const response = await fetch(`https://backend.yourwebsite.com/${action}`
+   ```
+   
+5. Build and run the Docker containers:
    ```
    docker compose up --build
    ```
