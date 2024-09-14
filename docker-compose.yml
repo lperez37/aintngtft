@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    ports:
+      - "5076:5000"
+    restart: unless-stopped
+    networks:
+      - youtube_helper_network
+
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8076:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - youtube_helper_network
+
+  cloudflared-frontend:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_FRONTEND_TOKEN}
+    restart: unless-stopped
+    networks:
+      - youtube_helper_network
+
+  cloudflared-backend:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_BACKEND_TOKEN}
+    restart: unless-stopped
+    networks:
+      - youtube_helper_network
+
+networks:
+  youtube_helper_network:
+    driver: bridge
