@@ -192,6 +192,9 @@
                 return;
             }
 
+            // Add this line to hide the test URL button
+            document.getElementById('testUrlButton').classList.add('hidden');
+
             document.getElementById('loading').classList.remove('hidden');
             document.getElementById('error').classList.add('hidden');
             document.getElementById('result').innerHTML = '<button class="copy-button" onclick="copyToClipboard()"><i class="fas fa-copy mr-1"></i> Copy</button>';
@@ -205,7 +208,7 @@
 
             try {
                 // IMPORTANT: Update this URL to point to your backend server
-                const response = await fetch(`{link-to-backend}/${action}`, {
+                const response = await fetch(`https://subdomain.domain.com/${action}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -325,7 +328,7 @@
 
         function addTestUrl() {
             const randomUrl = testUrls[Math.floor(Math.random() * testUrls.length)];
-            document.getElementById('videoUrl').value = randomUrl;
+            document.getElementById(nt today, arisin'videoUrl').value = randomUrl;
             document.getElementById('testUrlButton').classList.add('hidden');
         }
     </script>
