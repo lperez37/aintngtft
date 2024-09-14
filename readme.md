@@ -1,29 +1,28 @@
 ## Overview
 
-This project is a web application that summarizes YouTube videos and extracts key insights. It uses AI to analyze video transcripts, providing users with concise summaries, main points, and actionable takeaways. The app streamlines the process of extracting valuable information from lengthy video content, saving users time and enhancing their learning experience.
+This project is a web application that summarizes YouTube videos and extracts key insights. It uses AI to analyze video transcripts, providing users with concise summaries, main points and actionable takeaways. The app streamlines the process of extracting valuable information from lengthy video content, saving users time and enhancing their learning experience.
 
 ## Technologies Used
 
-- Frontend: HTML
+- Frontend: HTML and CSS served via nginx 
 - Backend: Python (Flask)
 - Containerization: Docker
-- Web Server: Nginx
 - Orchestration: Docker Compose
 
 ## Setup and Installation
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/your-repo-name.git
-   cd your-repo-name
+   git clone https://github.com/lperez37/aintngtft.git
+   cd aintngtft
    ```
 
 2. Set up environment variables:
-   Copy the `.env.example` file to `.env` and fill in the necessary variables.
+   Copy the `.env.example` file to `.env` and fill in the necessary variables (OpenAI and Cloudflare)
 
 3. Build and run the Docker containers:
    ```
-   docker-compose up --build
+   docker compose up --build
    ```
 
 ## Usage
