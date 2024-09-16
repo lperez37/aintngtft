@@ -1,8 +1,8 @@
 import os
-import subprocess
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from openai import OpenAI
+from youtube_transcript_api import YouTubeTranscriptApi
 
 app = Flask(__name__)
 CORS(app)  # This enables CORS for all routes
@@ -12,11 +12,19 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 def get_transcript(video_id):
     try:
-        result = subprocess.run(['youtube_transcript_api', '--format', 'text', video_id], 
-                                capture_output=True, text=True, check=True)
-        return result.stdout.strip()
-    except subprocess.CalledProcessError as e:
-        raise Exception(f"Failed to get transcript: {str(e)}")
+        # Try to get the transcript in the following order: English, Spanish, Dutch, German
+        transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en', 'es', 'nl', 'de', 'fr', 'da', 'it', 'pt', 'no', 'sv'])
+    except Exception as e:
+        # If none of the specified languages are available, try to get any available transcript
+        try:
+            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+            transcript = transcript_list.find_transcript(['en']).fetch()
+        except Exception as inner_e:
+            raise Exception(f"Failed to get transcript: {str(inner_e)}")
+    
+    # Convert the transcript to a single string
+    full_transcript = ' '.join([entry['text'] for entry in transcript])
+    return full_transcript
 
 @app.route('/summarize', methods=['POST'])
 def summarize():
@@ -123,7 +131,7 @@ Take a step back and think step-by-step about how to achieve the best possible r
 INPUT: {full_transcript}"""
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4o",
         messages=[
             {"role": "system", "content": system_content},
             {"role": "user", "content": user_content}
