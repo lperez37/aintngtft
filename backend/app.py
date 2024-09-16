@@ -131,7 +131,7 @@ Take a step back and think step-by-step about how to achieve the best possible r
 INPUT: {full_transcript}"""
 
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": system_content},
             {"role": "user", "content": user_content}
